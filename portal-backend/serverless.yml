@@ -1,0 +1,22 @@
+service: user-portal-backend
+
+provider:
+  name: aws
+  runtime: nodejs20.x # AWS Lambda Node.js version
+  region: us-east-1   # Change as appropriate
+  environment:
+    MONGO_URI: ${env:MONGO_URI, 'mongodb+srv://YOUR_USER:YOUR_PASS@YOUR_CLUSTER.mongodb.net/user-portal?retryWrites=true&w=majority'}
+
+functions:
+  api:
+    handler: dist/server.handler # Assuming you compile TS to dist/
+    events:
+      - httpApi: '*'
+
+# Exclude ts files and other dev files from package to keep lambda small
+package:
+  patterns:
+    - "!src/**"
+    - "!.git/**"
+    - "!node_modules/.cache/**"
+    - "dist/**"
