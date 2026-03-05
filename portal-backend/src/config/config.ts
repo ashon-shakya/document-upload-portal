@@ -9,6 +9,7 @@ const config = {
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '1d',
     nodeEnv: process.env.NODE_ENV || 'development',
     frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
+    swaggerServers: process.env.SWAGGER_SERVERS ? process.env.SWAGGER_SERVERS.split(',').map(url => url.trim()) : [],
     // Add other environment variables here as needed
 };
 

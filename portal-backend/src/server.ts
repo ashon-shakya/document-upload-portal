@@ -14,6 +14,14 @@ import path from 'path';
 // Load Swagger JSON
 const swaggerDocument = JSON.parse(fs.readFileSync(path.join(__dirname, 'swagger.json'), 'utf8'));
 
+// Inject Dynamic Swagger Servers if available in environment
+if (config.swaggerServers && config.swaggerServers.length > 0) {
+    swaggerDocument.servers = config.swaggerServers.map((url: string) => ({
+        url,
+        description: 'Dynamic environment server'
+    }));
+}
+
 const app: Application = express();
 const PORT = config.port;
 
