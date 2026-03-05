@@ -1,11 +1,13 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
-import { LogOut, ChevronDown } from 'lucide-react';
+import { LogOut, ChevronDown, UserCircle } from 'lucide-react';
 import logoLight from '../../assets/logo-light.svg';
 import apiProcessor from '../../api/apiProcessor';
+import { useAppSelector } from '../../store/hooks';
 
 const Layout = () => {
     const navigate = useNavigate();
+    const { userData } = useAppSelector((state) => state.user);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -48,16 +50,16 @@ const Layout = () => {
                         className="flex items-center gap-3 hover:bg-gray-50 rounded-lg p-1 pr-2 transition-colors focus:outline-none"
                     >
                         <div className="flex flex-col items-end hidden sm:flex">
-                            <span className="text-sm font-semibold text-dark-text leading-tight">Katherine Alison</span>
-                            <span className="text-xs text-gray-text leading-tight">Echo Lima</span>
+                            <span className="text-sm font-semibold text-dark-text leading-tight">{userData?.fullName} ({userData?.username})</span>
+                            <span className="text-xs text-gray-text leading-tight">{userData?.email}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200 shadow-sm">
-                                <img
-                                    src="https://randomuser.me/api/portraits/women/44.jpg"
-                                    alt="User profile"
-                                    className="w-full h-full object-cover"
-                                />
+                            <div className="w-10 h-10 rounded-full border border-gray-200 shadow-sm flex items-center justify-center bg-gray-50 overflow-hidden">
+                                {userData?.profileImageUrl ? (
+                                    <img src={userData.profileImageUrl} alt="User profile" className="w-full h-full object-cover" />
+                                ) : (
+                                    <UserCircle size={24} className="text-gray-400" />
+                                )}
                             </div>
                             <ChevronDown size={16} className={`text-gray-500 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
                         </div>
@@ -67,8 +69,8 @@ const Layout = () => {
                     {dropdownOpen && (
                         <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-20 animate-in fade-in slide-in-from-top-2 duration-200">
                             <div className="px-4 py-3 border-b border-gray-100 sm:hidden">
-                                <p className="text-sm font-semibold text-dark-text">Katherine Alison</p>
-                                <p className="text-xs text-gray-text">Echo Lima</p>
+                                <p className="text-sm font-semibold text-dark-text">{userData?.fullName} ({userData?.username})</p>
+                                <p className="text-xs text-gray-text">{userData?.email}</p>
                             </div>
                             <button
                                 onClick={handleLogout}

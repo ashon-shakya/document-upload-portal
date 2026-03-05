@@ -28,7 +28,8 @@ export const signup = async (req: Request, res: Response, next: NextFunction): P
             fullName: validatedData.fullName,
             username: validatedData.username,
             email: validatedData.email,
-            password: hashedPassword
+            password: hashedPassword,
+            profileImageUrl: validatedData.profileImageUrl
         });
 
         sendSuccess(res, 'User registered successfully', {
@@ -36,6 +37,7 @@ export const signup = async (req: Request, res: Response, next: NextFunction): P
             fullName: newUser.fullName,
             username: newUser.username,
             email: newUser.email,
+            profileImageUrl: newUser.profileImageUrl,
             createdAt: newUser.createdAt
         }, 201);
 
@@ -52,7 +54,8 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
             $or: [{ email: validatedData.identifier }, { username: validatedData.identifier }]
         });
 
-        if (!user) {
+
+        if (!user || !user.password) {
             sendError(res, 'Invalid credentials', 401);
             return;
         }
@@ -70,25 +73,19 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
             : 24 * 60 * 60 * 1000;      // 1 day (default)
 
         const token = jwt.sign(
-            { id: user._id },
+            { email: user.email },
             config.jwtSecret,
             { expiresIn }
         );
 
         res.cookie('token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: config.nodeEnv === 'production',
             sameSite: 'strict', // Protects against CSRF attacks
             maxAge: cookieMaxAge
         });
 
-        sendSuccess(res, 'Login successful', {
-            id: user._id,
-            fullName: user.fullName,
-            username: user.username,
-            email: user.email,
-            createdAt: user.createdAt
-        });
+        sendSuccess(res, 'Login successful');
 
     } catch (error: any) {
         next(error);
@@ -99,6 +96,28 @@ export const logout = async (req: Request, res: Response, next: NextFunction): P
     try {
         res.clearCookie('token');
         sendSuccess(res, 'Logged out successfully', null);
+    } catch (error: any) {
+        next(error);
+    }
+};
+
+export const getUserProfile = async (req: any, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const user = req.user;
+
+        if (!user) {
+            sendError(res, 'User not found', 404);
+            return;
+        }
+
+        sendSuccess(res, 'User details retrieved successfully', {
+            id: user._id,
+            fullName: user.fullName,
+            username: user.username,
+            email: user.email,
+            profileImageUrl: user.profileImageUrl,
+            createdAt: user.createdAt
+        });
     } catch (error: any) {
         next(error);
     }

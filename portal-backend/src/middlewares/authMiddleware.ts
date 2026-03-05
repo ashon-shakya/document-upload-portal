@@ -16,7 +16,7 @@ export const protectRoute = async (req: AuthRequest, res: Response, next: NextFu
 
         const decoded: any = jwt.verify(token, config.jwtSecret);
 
-        req.user = await UserModel.findById(decoded.id).select('-password');
+        req.user = await UserModel.findOne({ email: decoded.email }).select('-password');
 
         if (!req.user) {
             sendError(res, 'Not authorized, user not found', 401);

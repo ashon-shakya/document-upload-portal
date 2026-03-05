@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Lock, Eye, EyeOff, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
 import apiProcessor from '../../api/apiProcessor';
+import { useAppDispatch } from '../../store/hooks';
+import { setUserData } from '../../store/userSlice';
 
 const Login = () => {
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
 
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
@@ -34,11 +37,19 @@ const Login = () => {
             setLoading(true);
             setError('');
 
-            const response = await apiProcessor.post('/auth/login', {
+            await apiProcessor.post('/auth/login', {
                 identifier,
                 password,
                 rememberMe
             });
+
+            // Fetch structured user data from /profile instead of directly from login payload
+            const profileResponse = await apiProcessor.get('/auth/profile');
+            if (profileResponse.data && profileResponse.data.data) {
+                dispatch(setUserData(profileResponse.data.data));
+            } else if (profileResponse.data) {
+                dispatch(setUserData(profileResponse.data));
+            }
 
             if (rememberMe) {
                 localStorage.setItem('rememberedIdentifier', identifier);
@@ -49,8 +60,9 @@ const Login = () => {
             // If login succeeds, the browser stores the HTTP-only cookie automatically
             navigate('/document-upload');
 
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Invalid credentials or network issue. Please try again.');
+        } catch (err: unknown) {
+            const error = err as { response?: { data?: { message?: string } } };
+            setError(error.response?.data?.message || 'Invalid credentials or network issue. Please try again.');
         } finally {
             setLoading(false);
         }

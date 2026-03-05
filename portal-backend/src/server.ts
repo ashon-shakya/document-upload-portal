@@ -4,6 +4,7 @@ import config from './config/config';
 import authRoutes from './routes/authRoutes';
 import { errorHandler } from './middlewares/errorMiddleware';
 import { connectDB } from './config/db';
+import { loggerMiddleware } from './middlewares/loggerMiddleware';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
@@ -18,11 +19,14 @@ const app: Application = express();
 const PORT = config.port;
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: config.frontendUrl,
     credentials: true,
 }));
 app.use(cookieParser());
 app.use(express.json());
+
+// API Logger
+app.use(loggerMiddleware);
 
 app.use('/api/auth', authRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -37,7 +41,7 @@ app.use(errorHandler);
 // Make sure DB connects during cold start in lambda or when express starts
 connectDB();
 
-if (process.env.NODE_ENV !== 'production') {
+if (config.nodeEnv !== 'production') {
     app.listen(PORT, () => {
         console.log(`Server is running on http://localhost:${PORT}`);
     });

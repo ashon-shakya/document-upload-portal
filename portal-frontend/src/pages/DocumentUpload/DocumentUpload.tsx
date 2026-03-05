@@ -1,4 +1,4 @@
-import { Check, Clock, FileText, Upload, RefreshCw, FileImage, CreditCard, ChevronDown } from 'lucide-react';
+import { Check, Clock, FileText, Upload, RefreshCw, Book, IdCard, ChevronDown } from 'lucide-react';
 
 const DocumentUpload = () => {
     return (
@@ -52,20 +52,20 @@ const DocumentUpload = () => {
                         </button>
                     </div>
 
-                    {/* W-2 Form - Pending */}
+                    {/* Australian Passport - Pending */}
                     <div className="bg-white rounded-xl border border-gray-border p-5 flex items-center justify-between shadow-sm">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-badge-gray-bg rounded-lg flex items-center justify-center text-gray-text flex-shrink-0">
-                                <CreditCard size={24} />
+                                <Book size={24} />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-dark-text leading-tight mb-2">W-2 Form</h3>
+                                <h3 className="text-lg font-bold text-dark-text leading-tight mb-2">Australian Passport</h3>
                                 <div className="flex items-center gap-3 mb-1">
                                     <span className="inline-flex items-center gap-1 bg-badge-gray-bg text-gray-text text-xs font-semibold px-2 py-0.5 rounded-full">
                                         <Clock size={12} strokeWidth={3} /> Not uploaded
                                     </span>
                                 </div>
-                                <p className="text-sm text-gray-text">Most recent W-2 wage and tax statement</p>
+                                <p className="text-sm text-gray-text">Current and valid Australian Passport</p>
                             </div>
                         </div>
                         <button className="flex items-center gap-2 bg-brand hover:bg-brand-dark text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors">
@@ -73,20 +73,20 @@ const DocumentUpload = () => {
                         </button>
                     </div>
 
-                    {/* Visa Status Document - Pending */}
+                    {/* Australian Driver Licence - Pending */}
                     <div className="bg-white rounded-xl border border-gray-border p-5 flex items-center justify-between shadow-sm">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-badge-gray-bg rounded-lg flex items-center justify-center text-gray-text flex-shrink-0">
-                                <FileImage size={24} />
+                                <IdCard size={24} />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-dark-text leading-tight mb-2">Visa Status Document</h3>
+                                <h3 className="text-lg font-bold text-dark-text leading-tight mb-2">Australian Driver Licence</h3>
                                 <div className="flex items-center gap-3 mb-1">
                                     <span className="inline-flex items-center gap-1 bg-badge-gray-bg text-gray-text text-xs font-semibold px-2 py-0.5 rounded-full">
                                         <Clock size={12} strokeWidth={3} /> Not uploaded
                                     </span>
                                 </div>
-                                <p className="text-sm text-gray-text">Current visa documentation or work authorization</p>
+                                <p className="text-sm text-gray-text">Current Australian driver licence</p>
                             </div>
                         </div>
                         <button className="flex items-center gap-2 bg-brand hover:bg-brand-dark text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors">

@@ -1,8 +1,10 @@
 export interface IUser {
-    id: string;
+    id?: string;
     fullName: string;
     username: string;
     email: string;
-    password: string; // Storing as plaintext for this mock, but normally would be hashed
-    createdAt: Date;
+    password?: string;
+    profileImageUrl?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
 }

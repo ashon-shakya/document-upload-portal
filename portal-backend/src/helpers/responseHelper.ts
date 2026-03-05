@@ -1,6 +1,7 @@
 import { Response } from 'express';
+import { ApiResponse } from '../interfaces/ApiResponse';
 
-export const sendSuccess = (res: Response, message: string, data: any = null, statusCode = 200) => {
+export const sendSuccess = <T>(res: Response, message: string, data?: T, statusCode = 200): Response<ApiResponse<T>> => {
     return res.status(statusCode).json({
         success: true,
         message,
@@ -8,7 +9,7 @@ export const sendSuccess = (res: Response, message: string, data: any = null, st
     });
 };
 
-export const sendError = (res: Response, message: string, statusCode = 500) => {
+export const sendError = (res: Response, message: string, statusCode = 500): Response<ApiResponse> => {
     return res.status(statusCode).json({
         success: false,
         message,

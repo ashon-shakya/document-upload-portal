@@ -10,7 +10,8 @@ const Signup = () => {
         username: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        profileImageUrl: ''
     });
 
     const [loading, setLoading] = useState(false);
@@ -38,14 +39,16 @@ const Signup = () => {
                 fullName: formData.fullName,
                 username: formData.username,
                 email: formData.email,
-                password: formData.password
+                password: formData.password,
+                profileImageUrl: formData.profileImageUrl
             });
 
             setSuccess('Account created successfully! Redirecting to login...');
             setTimeout(() => navigate('/login'), 2000);
 
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'An error occurred during registration. Please try again.');
+        } catch (err: unknown) {
+            const error = err as { response?: { data?: { message?: string } } };
+            setError(error.response?.data?.message || 'An error occurred during registration. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -119,6 +122,24 @@ const Signup = () => {
                                 value={formData.email}
                                 onChange={handleChange}
                                 placeholder="Enter your email address"
+                                className="w-full pl-[42px] pr-4 py-3 text-sm text-dark-text placeholder:text-gray-400 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand focus:border-brand transition-colors"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Profile Image URL */}
+                    <div>
+                        <label className="block text-[13px] font-bold text-dark-text mb-2">Profile Image URL (Optional)</label>
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <User size={18} className="text-gray-400" strokeWidth={1.5} />
+                            </div>
+                            <input
+                                type="url"
+                                name="profileImageUrl"
+                                value={formData.profileImageUrl}
+                                onChange={handleChange}
+                                placeholder="https://example.com/avatar.jpg"
                                 className="w-full pl-[42px] pr-4 py-3 text-sm text-dark-text placeholder:text-gray-400 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand focus:border-brand transition-colors"
                             />
                         </div>
