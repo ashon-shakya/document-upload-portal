@@ -10,7 +10,6 @@ import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
-import serverless from 'serverless-http';
 
 // Load Swagger JSON
 const swaggerDocument = JSON.parse(fs.readFileSync(path.join(__dirname, 'swagger.json'), 'utf8'));
@@ -47,4 +46,4 @@ if (config.nodeEnv !== 'production') {
     });
 }
 
-export const handler = serverless(app);
+export default app;
