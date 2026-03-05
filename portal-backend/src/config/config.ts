@@ -1,8 +1,9 @@
 import dotenv from 'dotenv';
+import { AppConfig } from '../interfaces/AppConfig';
 
 dotenv.config();
 
-const config = {
+const config: AppConfig = {
     port: process.env.PORT || 3000,
     mongoUri: process.env.MONGO_URI || 'mongodb://localhost:27017/user-portal',
     jwtSecret: process.env.JWT_SECRET || 'fallback_secret_key_for_dev_only',
@@ -12,5 +13,6 @@ const config = {
     swaggerServers: process.env.SWAGGER_SERVERS ? process.env.SWAGGER_SERVERS.split(',').map(url => url.trim()) : [],
     // Add other environment variables here as needed
 };
+
 
 export default config;
