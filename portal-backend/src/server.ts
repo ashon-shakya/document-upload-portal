@@ -36,7 +36,16 @@ app.use(express.json());
 app.use(loggerMiddleware);
 
 app.use('/api/auth', authRoutes);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+const swaggerOptions = {
+    customCssUrl: 'https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css',
+    customJs: [
+        'https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js',
+        'https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-standalone-preset.js'
+    ],
+};
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 
 app.get('/', (req: Request, res: Response) => {
     res.send('API is up and running! 🚀');
