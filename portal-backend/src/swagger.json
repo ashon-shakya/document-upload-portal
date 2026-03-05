@@ -16,14 +16,21 @@
       "post": {
         "summary": "Register a new user",
         "description": "Creates a new user account with the provided details.",
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["fullName", "username", "email", "password"],
+                "required": [
+                  "fullName",
+                  "username",
+                  "email",
+                  "password"
+                ],
                 "properties": {
                   "fullName": {
                     "type": "string",
@@ -66,11 +73,26 @@
                     "user": {
                       "type": "object",
                       "properties": {
-                        "id": { "type": "string", "example": "60d0fe4f5311236168a109ca" },
-                        "fullName": { "type": "string", "example": "John Doe" },
-                        "username": { "type": "string", "example": "johndoe123" },
-                        "email": { "type": "string", "example": "john@example.com" },
-                        "createdAt": { "type": "string", "format": "date-time" }
+                        "id": {
+                          "type": "string",
+                          "example": "60d0fe4f5311236168a109ca"
+                        },
+                        "fullName": {
+                          "type": "string",
+                          "example": "John Doe"
+                        },
+                        "username": {
+                          "type": "string",
+                          "example": "johndoe123"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "john@example.com"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
                       }
                     }
                   }
@@ -80,6 +102,93 @@
           },
           "400": {
             "description": "Validation failed or user already exists"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Authenticate a user",
+        "description": "Logs in a user with their email or username and password.",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "identifier",
+                  "password"
+                ],
+                "properties": {
+                  "identifier": {
+                    "type": "string",
+                    "example": "johndoe123",
+                    "description": "Email or Username"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "strongpassword123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Login successful"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "example": "60d0fe4f5311236168a109ca"
+                        },
+                        "fullName": {
+                          "type": "string",
+                          "example": "John Doe"
+                        },
+                        "username": {
+                          "type": "string",
+                          "example": "johndoe123"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "john@example.com"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed"
+          },
+          "401": {
+            "description": "Invalid credentials"
           },
           "500": {
             "description": "Server error"

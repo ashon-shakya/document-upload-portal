@@ -47,7 +47,7 @@ const DocumentUpload = () => {
                                 <p className="text-xs text-gray-text mt-1">Uploaded on January 15, 2025 at 2:34 PM</p>
                             </div>
                         </div>
-                        <button className="flex items-center gap-2 bg-brand hover:bg-brand-dark text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">
+                        <button className="flex items-center gap-2 bg-brand hover:bg-brand-dark text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors">
                             <RefreshCw size={16} /> Upload again
                         </button>
                     </div>
@@ -68,7 +68,7 @@ const DocumentUpload = () => {
                                 <p className="text-sm text-gray-text">Most recent W-2 wage and tax statement</p>
                             </div>
                         </div>
-                        <button className="flex items-center gap-2 bg-brand hover:bg-brand-dark text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors">
+                        <button className="flex items-center gap-2 bg-brand hover:bg-brand-dark text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors">
                             <Upload size={16} /> Upload
                         </button>
                     </div>
@@ -89,7 +89,7 @@ const DocumentUpload = () => {
                                 <p className="text-sm text-gray-text">Current visa documentation or work authorization</p>
                             </div>
                         </div>
-                        <button className="flex items-center gap-2 bg-brand hover:bg-brand-dark text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors">
+                        <button className="flex items-center gap-2 bg-brand hover:bg-brand-dark text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors">
                             <Upload size={16} /> Upload
                         </button>
                     </div>
@@ -121,7 +121,7 @@ const DocumentUpload = () => {
                         </div>
                         {/* Disabled styled upload button matching screenshot */}
                         <button
-                            className="flex items-center gap-2 bg-[#f2e6ff] text-[#a370e0] cursor-not-allowed text-sm font-semibold px-6 py-2.5 rounded-xl"
+                            className="flex items-center gap-2 bg-[#f2e6ff] text-[#a370e0] cursor-not-allowed text-sm font-semibold px-6 py-2.5 rounded-lg"
                             disabled
                         >
                             <Upload size={16} /> Upload
@@ -132,7 +132,7 @@ const DocumentUpload = () => {
 
             {/* Footer Buttons */}
             <div className="flex justify-end">
-                <button className="flex items-center gap-2 bg-brand hover:bg-brand-dark text-white font-semibold px-6 py-3 rounded-xl transition-colors shadow-sm">
+                <button className="flex items-center gap-2 bg-brand hover:bg-brand-dark text-white font-semibold px-6 py-3 rounded-lg transition-colors shadow-sm">
                     <Check size={18} /> Confirm
                 </button>
             </div>

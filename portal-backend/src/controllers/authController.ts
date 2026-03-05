@@ -1,20 +1,13 @@
-import { Request, Response } from 'express';
-import { z } from 'zod';
+import { Request, Response, NextFunction } from 'express';
 import { UserModel } from '../models/userModel';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import config from '../config/config';
+import { sendSuccess, sendError } from '../helpers/responseHelper';
 
-// Define the validation schema for sign up
-const signupSchema = z.object({
-    fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-    username: z.string().min(3, 'Username must be at least 3 characters').regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
-    email: z.string().email('Invalid email address'),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
-export const signup = async (req: Request, res: Response): Promise<void> => {
+export const signup = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        // Validate request body
-        const validatedData = signupSchema.parse(req.body);
+        const validatedData = req.body;
 
         // Check if user already exists
         const userExists = await UserModel.findOne({
@@ -22,7 +15,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
         });
 
         if (userExists) {
-            res.status(400).json({ error: 'User with this email or username already exists' });
+            sendError(res, 'User with this email or username already exists', 400);
             return;
         }
 
@@ -38,26 +31,75 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
             password: hashedPassword
         });
 
-        res.status(201).json({
-            message: 'User registered successfully',
-            user: {
-                id: newUser._id,
-                fullName: newUser.fullName,
-                username: newUser.username,
-                email: newUser.email,
-                createdAt: newUser.createdAt
-            }
+        sendSuccess(res, 'User registered successfully', {
+            id: newUser._id,
+            fullName: newUser.fullName,
+            username: newUser.username,
+            email: newUser.email,
+            createdAt: newUser.createdAt
+        }, 201);
+
+    } catch (error: any) {
+        next(error);
+    }
+};
+
+export const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const validatedData = req.body;
+
+        const user = await UserModel.findOne({
+            $or: [{ email: validatedData.identifier }, { username: validatedData.identifier }]
+        });
+
+        if (!user) {
+            sendError(res, 'Invalid credentials', 401);
+            return;
+        }
+
+        const isMatch = await bcrypt.compare(validatedData.password, user.password);
+
+        if (!isMatch) {
+            sendError(res, 'Invalid credentials', 401);
+            return;
+        }
+
+        const expiresIn = validatedData.rememberMe ? '30d' : (config.jwtExpiresIn as any);
+        const cookieMaxAge = validatedData.rememberMe
+            ? 30 * 24 * 60 * 60 * 1000 // 30 days
+            : 24 * 60 * 60 * 1000;      // 1 day (default)
+
+        const token = jwt.sign(
+            { id: user._id },
+            config.jwtSecret,
+            { expiresIn }
+        );
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict', // Protects against CSRF attacks
+            maxAge: cookieMaxAge
+        });
+
+        sendSuccess(res, 'Login successful', {
+            id: user._id,
+            fullName: user.fullName,
+            username: user.username,
+            email: user.email,
+            createdAt: user.createdAt
         });
 
     } catch (error: any) {
-        if (error instanceof z.ZodError) {
-            const errors = (error as any).errors.map((err: any) => ({
-                field: err.path.join('.'),
-                message: err.message
-            }));
-            res.status(400).json({ error: 'Validation failed', details: errors });
-            return;
-        }
-        res.status(500).json({ error: 'Server error during registration' });
+        next(error);
+    }
+};
+
+export const logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        res.clearCookie('token');
+        sendSuccess(res, 'Logged out successfully', null);
+    } catch (error: any) {
+        next(error);
     }
 };
