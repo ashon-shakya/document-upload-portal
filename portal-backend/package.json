@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/server.js",
-    "build": "tsc",
+    "build": "tsc && node -e \"require('fs').copyFileSync('src/swagger.json', 'dist/swagger.json')\"",
     "dev": "nodemon --exec ts-node src/server.ts"
   },
   "keywords": [],
