@@ -1,7 +1,7 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import config from '../config/config';
-import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
 
 // Initialize S3 Client
 const s3Client = new S3Client({
@@ -17,7 +17,7 @@ export const getPresignedUploadUrl = async (fileName: string, contentType: strin
     const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
 
     // Generate a unique S3 key specifically organized by user
-    const s3Key = `${config.awsS3BucketFolder}/uploads/users/${userId}/${uuidv4()}-${sanitizedFileName}`;
+    const s3Key = `${config.awsS3BucketFolder}/uploads/users/${userId}/${crypto.randomUUID()}-${sanitizedFileName}`;
 
     const command = new PutObjectCommand({
         Bucket: config.awsS3BucketName,
