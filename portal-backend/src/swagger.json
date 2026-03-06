@@ -11,26 +11,29 @@
       "description": "Local development server"
     }
   ],
+  "components": {
+    "securitySchemes": {
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "token",
+        "description": "JWT stored in an HttpOnly cookie named token. Swagger UI might not send cookies directly depending on browser settings."
+      }
+    }
+  },
   "paths": {
     "/auth/signup": {
       "post": {
         "summary": "Register a new user",
         "description": "Creates a new user account with the provided details.",
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "fullName",
-                  "username",
-                  "email",
-                  "password"
-                ],
+                "required": ["fullName", "username", "email", "password"],
                 "properties": {
                   "fullName": {
                     "type": "string",
@@ -70,29 +73,14 @@
                       "type": "string",
                       "example": "User registered successfully"
                     },
-                    "user": {
+                    "data": {
                       "type": "object",
                       "properties": {
-                        "id": {
-                          "type": "string",
-                          "example": "60d0fe4f5311236168a109ca"
-                        },
-                        "fullName": {
-                          "type": "string",
-                          "example": "John Doe"
-                        },
-                        "username": {
-                          "type": "string",
-                          "example": "johndoe123"
-                        },
-                        "email": {
-                          "type": "string",
-                          "example": "john@example.com"
-                        },
-                        "createdAt": {
-                          "type": "string",
-                          "format": "date-time"
-                        }
+                        "id": { "type": "string", "example": "60d0fe4f5311236168a109ca" },
+                        "fullName": { "type": "string", "example": "John Doe" },
+                        "username": { "type": "string", "example": "johndoe123" },
+                        "email": { "type": "string", "example": "john@example.com" },
+                        "createdAt": { "type": "string", "format": "date-time" }
                       }
                     }
                   }
@@ -100,12 +88,8 @@
               }
             }
           },
-          "400": {
-            "description": "Validation failed or user already exists"
-          },
-          "500": {
-            "description": "Server error"
-          }
+          "400": { "description": "Validation failed or user already exists" },
+          "500": { "description": "Server error" }
         }
       }
     },
@@ -113,19 +97,14 @@
       "post": {
         "summary": "Authenticate a user",
         "description": "Logs in a user with their email or username and password.",
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "identifier",
-                  "password"
-                ],
+                "required": ["identifier", "password"],
                 "properties": {
                   "identifier": {
                     "type": "string",
@@ -136,6 +115,11 @@
                     "type": "string",
                     "format": "password",
                     "example": "strongpassword123"
+                  },
+                  "rememberMe": {
+                    "type": "boolean",
+                    "example": true,
+                    "description": "Extended session for 30 days"
                   }
                 }
               }
@@ -144,38 +128,120 @@
         },
         "responses": {
           "200": {
-            "description": "Login successful",
+            "description": "Login successful - sets token cookie",
+            "headers": {
+              "Set-Cookie": {
+                "schema": { "type": "string" },
+                "description": "token=abcde..."
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Login successful"
-                    },
-                    "user": {
+                    "message": { "type": "string", "example": "Login successful" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Validation failed" },
+          "401": { "description": "Invalid credentials" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "Log out user",
+        "description": "Clears the authentication token cookie.",
+        "tags": ["Auth"],
+        "responses": {
+          "200": {
+            "description": "Logged out successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string", "example": "Logged out successfully" }
+                  }
+                }
+              }
+            }
+          },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/auth/profile": {
+      "get": {
+        "summary": "Get User Profile",
+        "description": "Returns the profile of the currently authenticated user.",
+        "tags": ["Auth"],
+        "security": [ { "cookieAuth": [] } ],
+        "responses": {
+          "200": {
+            "description": "User profile successfully retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string", "example": "User details retrieved successfully" },
+                    "data": {
                       "type": "object",
                       "properties": {
-                        "id": {
-                          "type": "string",
-                          "example": "60d0fe4f5311236168a109ca"
-                        },
-                        "fullName": {
-                          "type": "string",
-                          "example": "John Doe"
-                        },
-                        "username": {
-                          "type": "string",
-                          "example": "johndoe123"
-                        },
-                        "email": {
-                          "type": "string",
-                          "example": "john@example.com"
-                        },
-                        "createdAt": {
-                          "type": "string",
-                          "format": "date-time"
+                        "id": { "type": "string", "example": "60d0fe4f5311236168a109ca" },
+                        "fullName": { "type": "string", "example": "John Doe" },
+                        "username": { "type": "string", "example": "johndoe123" },
+                        "email": { "type": "string", "example": "john@example.com" },
+                        "createdAt": { "type": "string", "format": "date-time" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized / User not authenticated" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/documents": {
+      "get": {
+        "summary": "Get User Documents",
+        "description": "Retrieve all uploaded documents for the currently logged-in user.",
+        "tags": ["Documents"],
+        "security": [ { "cookieAuth": [] } ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved documents",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string", "example": "Documents retrieved successfully" },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "documentType": { "type": "string", "example": "Resume" },
+                          "uploadStatus": { "type": "string", "example": "Completed" },
+                          "files": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "s3Key": { "type": "string", "example": "truuth/uploads/users/123/456-resume.pdf" },
+                                "documentName": { "type": "string", "example": "resume.pdf" }
+                              }
+                            }
+                          }
                         }
                       }
                     }
@@ -184,15 +250,109 @@
               }
             }
           },
-          "400": {
-            "description": "Validation failed"
-          },
-          "401": {
-            "description": "Invalid credentials"
-          },
-          "500": {
-            "description": "Server error"
+          "401": { "description": "Unauthorized" },
+          "500": { "description": "Server error" }
+        }
+      },
+      "post": {
+        "summary": "Save Document Record",
+        "description": "Save the metadata of an uploaded document to the backend once the direct S3 upload finishes.",
+        "tags": ["Documents"],
+        "security": [ { "cookieAuth": [] } ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["documentType", "files"],
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "example": "Resume",
+                    "description": "Accepted values: Australian Passport, Australian Driver Licence, Resume, Other"
+                  },
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "s3Key": { "type": "string", "example": "truuth/uploads/users/123/456-resume.pdf" },
+                        "documentName": { "type": "string", "example": "resume.pdf" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
+        },
+        "responses": {
+          "201": {
+            "description": "Document record saved completely",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string", "example": "Document record saved successfully" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid payload or document type" },
+          "401": { "description": "Unauthorized" },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/documents/presigned-url": {
+      "post": {
+        "summary": "Generate Pre-signed S3 URL",
+        "description": "Generates a pre-signed URL to upload a document directly to S3.",
+        "tags": ["Documents"],
+        "security": [ { "cookieAuth": [] } ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["fileName", "contentType"],
+                "properties": {
+                  "fileName": { "type": "string", "example": "resume.pdf" },
+                  "contentType": { "type": "string", "example": "application/pdf" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pre-signed URL generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string", "example": "Pre-signed URL generated successfully" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "uploadUrl": { "type": "string", "example": "https://s3.amazonaws.com/my-bucket/truuth/..." },
+                        "s3Key": { "type": "string", "example": "truuth/uploads/users/123/456-resume.pdf" },
+                        "publicUrl": { "type": "string", "example": "https://my-bucket.s3.ap-southeast-2.amazonaws.com/truuth/..." }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Missing file name or content type" },
+          "401": { "description": "Unauthorized" },
+          "500": { "description": "Server error" }
         }
       }
     }
