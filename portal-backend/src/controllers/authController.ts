@@ -81,7 +81,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
         res.cookie('token', token, {
             httpOnly: true,
             secure: config.nodeEnv === 'production',
-            sameSite: 'none', // Protects against CSRF attacks
+            sameSite: config.nodeEnv === 'production' ? 'none' : 'strict', // Protects against CSRF attacks
             maxAge: cookieMaxAge
         });
 

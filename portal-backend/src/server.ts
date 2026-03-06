@@ -2,6 +2,7 @@
 import express, { Application, Request, Response } from 'express';
 import config from './config/config';
 import authRoutes from './routes/authRoutes';
+import documentRoutes from './routes/documentRoutes';
 import { errorHandler } from './middlewares/errorMiddleware';
 import { connectDB } from './config/db';
 import { loggerMiddleware } from './middlewares/loggerMiddleware';
@@ -36,6 +37,7 @@ app.use(express.json());
 app.use(loggerMiddleware);
 
 app.use('/api/auth', authRoutes);
+app.use('/api/documents', documentRoutes);
 
 const swaggerOptions = {
     customCssUrl: 'https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css',
@@ -58,7 +60,11 @@ app.use(errorHandler);
 connectDB();
 
 if (config.nodeEnv !== 'production') {
-    app.listen(PORT, () => {
+    app.listen(PORT, (error) => {
+        if (error) {
+            console.log(error);
+            return;
+        }
         console.log(`Server is running on http://localhost:${PORT}`);
     });
 }

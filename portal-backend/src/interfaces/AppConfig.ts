@@ -6,4 +6,9 @@ export interface AppConfig {
     nodeEnv: string;
     frontendUrl: string;
     swaggerServers: string[];
+    awsRegion: string;
+    awsAccessKeyId: string;
+    awsSecretAccessKey: string;
+    awsS3BucketName: string;
+    awsS3BucketFolder: string;
 }

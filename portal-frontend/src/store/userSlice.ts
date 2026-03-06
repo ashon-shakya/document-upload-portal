@@ -2,10 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { UserData } from '../interfaces/UserData';
 
-interface UserState {
-    userData: UserData | null;
-    isCheckingAuth: boolean;
-}
+import type { UserState } from '../interfaces/UserState';
 
 const initialState: UserState = {
     userData: null,
