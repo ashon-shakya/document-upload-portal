@@ -94,7 +94,11 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
 
 export const logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        res.clearCookie('token');
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: config.nodeEnv === 'production',
+            sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
+        });
         sendSuccess(res, 'Logged out successfully', null);
     } catch (error: any) {
         next(error);
