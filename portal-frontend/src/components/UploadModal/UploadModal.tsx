@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { Upload, X, File, Image as ImageIcon, Loader2, Trash2 } from 'lucide-react';
 import apiProcessor from '../../api/apiProcessor';
 import axios from 'axios';
