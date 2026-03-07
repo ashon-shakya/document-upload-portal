@@ -318,11 +318,11 @@
                         "properties": {
                           "documentType": {
                             "type": "string",
-                            "example": "Resume"
+                            "example": "RESUME"
                           },
                           "uploadStatus": {
                             "type": "string",
-                            "example": "Completed"
+                            "example": "PROCESSING"
                           },
                           "files": {
                             "type": "array",
@@ -336,6 +336,18 @@
                                 "documentName": {
                                   "type": "string",
                                   "example": "resume.pdf"
+                                },
+                                "documentUrl": {
+                                  "type": "string",
+                                  "example": "https://s3.amazonaws.com/my-bucket/..."
+                                },
+                                "mimeType": {
+                                  "type": "string",
+                                  "example": "application/pdf"
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "example": "UPLOADED"
                                 }
                               }
                             }
@@ -380,21 +392,35 @@
                 "properties": {
                   "documentType": {
                     "type": "string",
-                    "example": "Resume",
-                    "description": "Accepted values: Passport, Driver Licence, Resume, Other"
+                    "example": "RESUME",
+                    "description": "Accepted values: PASSPORT, DRIVERS_LICENCE, RESUME, OTHER"
                   },
                   "files": {
                     "type": "array",
                     "items": {
                       "type": "object",
+                      "required": [
+                        "documentUrl",
+                        "documentName",
+                        "s3Key",
+                        "mimeType"
+                      ],
                       "properties": {
-                        "s3Key": {
+                        "documentUrl": {
                           "type": "string",
-                          "example": "truuth/uploads/users/123/456-resume.pdf"
+                          "example": "https://s3.amazonaws.com/my-bucket/..."
                         },
                         "documentName": {
                           "type": "string",
                           "example": "resume.pdf"
+                        },
+                        "s3Key": {
+                          "type": "string",
+                          "example": "truuth/uploads/users/123/456-resume.pdf"
+                        },
+                        "mimeType": {
+                          "type": "string",
+                          "example": "application/pdf"
                         }
                       }
                     }

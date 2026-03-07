@@ -16,11 +16,6 @@ export const generatePresignedUrl = async (req: any, res: Response, next: NextFu
             return;
         }
 
-        if (!fileName || !contentType) {
-            sendError(res, 'File name and content type are required', 400);
-            return;
-        }
-
         // Generate S3 Pre-signed URL using our helper
         const presignedData = await getPresignedUploadUrl(fileName, contentType, user._id.toString());
 
@@ -39,18 +34,6 @@ export const saveDocumentRecord = async (req: any, res: Response, next: NextFunc
             sendError(res, 'User not authenticated', 401);
             return;
         }
-
-        if (!documentType || !files || !Array.isArray(files) || files.length === 0) {
-            sendError(res, 'Missing required fields for document record', 400);
-            return;
-        }
-
-        // Ensure the document type is valid based on Enum
-        if (!Object.values(IDocumentType).includes(documentType)) {
-            sendError(res, 'Invalid document type. Accepted types are: Passport, Driver Licence, Resume, Other.', 400);
-            return;
-        }
-
 
         // upload Status
         let uploadStatus = DocumentStatus.UPLOADED;
