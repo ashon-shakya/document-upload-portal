@@ -1,0 +1,21 @@
+export enum IDocumentType {
+    PASSPORT = 'PASSPORT',
+    DRIVERS_LICENCE = 'DRIVERS_LICENCE',
+    RESUME = 'RESUME',
+    OTHER = 'OTHER' // Allow other documents just in case
+}
+
+export enum DocumentStatus {
+    PROCESSING = "PROCESSING",
+    UPLOADED = "UPLOADED",
+    CLASSIFICATION_PASSED = "CLASSIFICATION_PASSED",
+    CLASSIFICATION_FAILED = "CLASSIFICATION_FAILED",
+    VERIFICATION_PASSED = "VERIFICATION_PASSED",
+    VERIFICATION_FAILED = "VERIFICATION_FAILED",
+    PENDING_VERIFICATION = "PENDING_VERIFICATION"
+}
+
+export enum MimeType {
+    IMAGE_PNG = "image/png",
+    IMAGE_JPG = "image/jpeg"
+}

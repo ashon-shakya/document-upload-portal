@@ -4,7 +4,6 @@ import apiProcessor from '../../api/apiProcessor';
 import axios from 'axios';
 
 import type { UploadModalProps } from '../../interfaces/UploadModalProps';
-import { DocumentType } from '../../interfaces/DocumentType';
 
 const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, documentType, onSuccess }) => {
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -14,11 +13,11 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, documentType
 
     if (!isOpen) return null;
 
-    const isImageOnly = documentType === DocumentType.PASSPORT || documentType === DocumentType.DRIVER_LICENCE;
-    const isResume = documentType === DocumentType.RESUME;
+    const isImageOnly = documentType === 'PASSPORT' || documentType === 'DRIVERS_LICENCE';
+    const isResume = documentType === 'RESUME';
 
     const acceptTypes = isImageOnly ? "image/jpeg, image/png, image/jpg" : (isResume ? ".pdf,.doc,.docx" : "*");
-    const allowMultiple = isImageOnly || documentType === DocumentType.OTHER;
+    const allowMultiple = isImageOnly || documentType === 'OTHER';
 
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
@@ -94,7 +93,8 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, documentType
                 uploadedFilesData.push({
                     documentUrl: publicUrl,
                     documentName: file.name,
-                    s3Key: s3Key
+                    s3Key: s3Key,
+                    mimeType: file.type || 'application/octet-stream'
                 });
             }
 

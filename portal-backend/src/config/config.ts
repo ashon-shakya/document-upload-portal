@@ -1,9 +1,9 @@
 import dotenv from 'dotenv';
-import { AppConfig } from '../interfaces/AppConfig';
+import { IAppConfig } from '../interfaces/IAppConfig';
 
 dotenv.config();
 
-const config: AppConfig = {
+const config: IAppConfig = {
     port: process.env.PORT || 3000,
     mongoUri: process.env.MONGO_URI || 'mongodb://localhost:27017/user-portal',
     jwtSecret: process.env.JWT_SECRET || 'fallback_secret_key_for_dev_only',
@@ -11,11 +11,22 @@ const config: AppConfig = {
     nodeEnv: process.env.NODE_ENV || 'development',
     frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
     swaggerServers: process.env.SWAGGER_SERVERS ? process.env.SWAGGER_SERVERS.split(',').map(url => url.trim()) : [],
-    awsRegion: process.env.AWS_REGION || 'ap-southeast-2',
-    awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-    awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
-    awsS3BucketName: process.env.AWS_S3_BUCKET_NAME || '',
-    awsS3BucketFolder: process.env.AWS_S3_BUCKET_FOLDER || 'truuth',
+    awsOptions: {
+        region: process.env.AWS_REGION || 'ap-southeast-2',
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+        s3BucketName: process.env.AWS_S3_BUCKET_NAME || '',
+        s3BucketFolder: process.env.AWS_S3_BUCKET_FOLDER || 'truuth',
+    },
+    truuthOptions: {
+        tenantAlias: process.env.TRUUTH_TENNANT_ALIAS || '',
+        apiKey: process.env.TRUUTH_API_KEY || '',
+        apiSecret: process.env.TRUUTH_API_SECRET || '',
+        apiUrls: {
+            classify: process.env.TRUUTH_CLASSIFY_URL || '',
+            verify: process.env.TRUUTH_VERIFY_URL?.replace('{tenantAlias}', process.env.TRUUTH_TENNANT_ALIAS || '') || '',
+        }
+    }
     // Add other environment variables here as needed
 };
 

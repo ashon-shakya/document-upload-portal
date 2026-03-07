@@ -36,9 +36,15 @@ app.use(express.json());
 // API Logger
 app.use(loggerMiddleware);
 
+app.get('/', (req: Request, res: Response) => {
+    res.send('API is up and running!');
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 
+
+// Swagger Documentation
 const swaggerOptions = {
     customCssUrl: 'https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css',
     customJs: [
@@ -49,9 +55,6 @@ const swaggerOptions = {
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 
-app.get('/', (req: Request, res: Response) => {
-    res.send('API is up and running! 🚀');
-});
 
 // Error handling middleware should be the last loaded middleware
 app.use(errorHandler);

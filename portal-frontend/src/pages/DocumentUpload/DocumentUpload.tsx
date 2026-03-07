@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Check, Clock, FileText, Upload, RefreshCw, Book, IdCard, ChevronDown } from 'lucide-react';
+import { Check, Clock, FileText, Upload, RefreshCw, Book, IdCard, ChevronDown, X } from 'lucide-react';
 import apiProcessor from '../../api/apiProcessor';
 import UploadModal from '../../components/UploadModal/UploadModal';
-import { DocumentType } from '../../interfaces/DocumentType';
+import { DocumentStatus, DocumentType, type DocumentTypeKey } from '../../interfaces/DocumentType';
 
 import type { UploadedDocument } from '../../interfaces/UploadedDocument';
 
@@ -10,7 +10,7 @@ const DocumentUpload = () => {
     const [documents, setDocuments] = useState<UploadedDocument[]>([]);
     const [additionalDocType, setAdditionalDocType] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [activeDocumentType, setActiveDocumentType] = useState<DocumentType | null>(null);
+    const [activeDocumentType, setActiveDocumentType] = useState<DocumentTypeKey | null>(null);
 
     useEffect(() => {
         fetchDocuments();
@@ -27,7 +27,8 @@ const DocumentUpload = () => {
         }
     };
 
-    const handleUploadClick = (type: DocumentType) => {
+    const handleUploadClick = (type: DocumentTypeKey) => {
+        console.log(type)
         setActiveDocumentType(type);
         setIsModalOpen(true);
     };
@@ -39,40 +40,41 @@ const DocumentUpload = () => {
 
     const handleUploadSuccess = async () => {
         await fetchDocuments();
-        if (activeDocumentType === DocumentType.OTHER) {
+        if (activeDocumentType === 'OTHER') {
             setAdditionalDocType('');
         }
     };
 
-    const getDocumentByType = (type: DocumentType) => {
+    const getDocumentByType = (type: DocumentTypeKey) => {
         return documents.find(d => d.documentType === type);
     };
 
-    const MathProgress = () => {
+    const DocumentProgress = () => {
         let count = 0;
-        if (getDocumentByType(DocumentType.PASSPORT)) count++;
-        if (getDocumentByType(DocumentType.DRIVER_LICENCE)) count++;
-        if (getDocumentByType(DocumentType.RESUME)) count++;
+        if (getDocumentByType('PASSPORT')) count++;
+        if (getDocumentByType('DRIVERS_LICENCE')) count++;
+        if (getDocumentByType('RESUME')) count++;
         return count;
     };
 
-    const uploadedCount = MathProgress();
+    const uploadedCount = DocumentProgress();
     const requiredCount = 3;
     const progressPercent = (uploadedCount / requiredCount) * 100;
 
     const renderDocumentCard = (
-        title: DocumentType,
+        title: DocumentTypeKey,
         icon: React.ReactNode,
         description: string,
         isAdditional: boolean = false
     ) => {
         const doc = getDocumentByType(title);
+        console.log(doc)
 
         if (isAdditional && !doc) return null;
 
         if (doc && doc.files && doc.files.length > 0) {
             return (
-                <div key={title} className="bg-white rounded-xl border-2 border-brand p-5 flex items-center justify-between shadow-sm">
+                <div key={title} className="flex flex-col items-start gap-2 sm:flex-row sm:items-center bg-white rounded-xl border-2 border-brand p-5 justify-between shadow-sm ">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-brand-light rounded-lg flex items-center justify-center text-brand flex-shrink-0">
                             {icon}
@@ -82,9 +84,33 @@ const DocumentUpload = () => {
                             <div className="flex flex-col gap-2">
                                 {doc.files.map((f, i) => (
                                     <div key={i} className="flex items-center gap-3">
-                                        <span className="inline-flex items-center gap-1 bg-brand-light text-brand text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
-                                            <Check size={12} strokeWidth={3} /> Uploaded
-                                        </span>
+
+                                        {
+                                            f.status === 'VERIFICATION_PASSED' ?
+                                                <>
+                                                    <span className="inline-flex items-center gap-1 bg-green-50 text-green-500 text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
+                                                        <Check size={12} strokeWidth={3} /> {DocumentStatus[f.status]}
+                                                    </span>
+                                                </> :
+                                                f.status === 'CLASSIFICATION_FAILED' || f.status === 'VERIFICATION_FAILED' ?
+                                                    <>
+                                                        <span className="inline-flex items-center gap-1 bg-red-50 text-red-500 text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
+                                                            <X size={12} strokeWidth={3} /> {DocumentStatus[f.status]}
+                                                        </span>
+                                                    </> :
+                                                    f.status === 'PENDING_VERIFICATION' ?
+                                                        <>
+                                                            <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-500 text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
+                                                                <Clock size={12} strokeWidth={3} /> {DocumentStatus[f.status]}
+                                                            </span>
+                                                        </> :
+                                                        <>
+                                                            <span className="inline-flex items-center gap-1 bg-brand-light text-brand text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
+                                                                <Check size={12} strokeWidth={3} /> {DocumentStatus[f.status as keyof typeof DocumentStatus]}
+                                                            </span>
+                                                        </>
+                                        }
+
                                         <span className="text-sm font-medium text-gray-text truncate max-w-[200px]" title={f.documentName}>
                                             {f.documentName}
                                         </span>
@@ -102,7 +128,7 @@ const DocumentUpload = () => {
                     >
                         <RefreshCw size={16} /> Upload again
                     </button>
-                </div>
+                </div >
             );
         }
 
@@ -171,9 +197,9 @@ const DocumentUpload = () => {
                 </div>
 
                 <div className="flex flex-col gap-4">
-                    {renderDocumentCard(DocumentType.RESUME, <FileText size={24} />, "Upload your most current resume")}
-                    {renderDocumentCard(DocumentType.PASSPORT, <Book size={24} />, "Current and valid Australian Passport")}
-                    {renderDocumentCard(DocumentType.DRIVER_LICENCE, <IdCard size={24} />, "Current Australian driver licence")}
+                    {renderDocumentCard('RESUME', <FileText size={24} />, "Upload your most current resume")}
+                    {renderDocumentCard('PASSPORT', <Book size={24} />, "Current and valid Australian Passport")}
+                    {renderDocumentCard('DRIVERS_LICENCE', <IdCard size={24} />, "Current Australian driver licence")}
                 </div>
             </div>
 
@@ -186,7 +212,7 @@ const DocumentUpload = () => {
 
                 {/* Show list of uploaded additional documents */}
                 <div className="flex flex-col gap-4 mb-4">
-                    {documents.filter(d => d.documentType === DocumentType.OTHER).map((doc, index) => (
+                    {documents.filter(d => d.documentType === 'OTHER').map((doc, index) => (
                         <div key={doc._id} className="bg-white rounded-xl border-2 border-brand p-5 flex items-center justify-between shadow-sm">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 bg-brand-light rounded-lg flex items-center justify-center text-brand flex-shrink-0">
@@ -199,8 +225,9 @@ const DocumentUpload = () => {
                                         {doc.files && doc.files.map((f, i) => (
                                             <div key={i} className="flex items-center gap-3">
                                                 <span className="inline-flex items-center gap-1 bg-brand-light text-brand text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
-                                                    <Check size={12} strokeWidth={3} /> Uploaded
+                                                    <Check size={12} strokeWidth={3} /> {DocumentStatus[f.status as keyof typeof DocumentStatus]}
                                                 </span>
+
                                                 <span className="text-sm font-medium text-gray-text truncate max-w-[200px]" title={f.documentName}>
                                                     {f.documentName}
                                                 </span>
@@ -220,7 +247,7 @@ const DocumentUpload = () => {
                 <div className="bg-white rounded-xl border border-gray-border p-5 mb-8 shadow-sm">
                     <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-4 flex-1">
-                            <div className="w-12 h-12 bg-badge-gray-bg flex items-center justify-center text-gray-text rounded-lg flex-shrink-0">
+                            <div className="w-12 h-12 bg-badge-gray-bg flex items-center justify-center text-gray-text rounded-lg shrink-0">
                                 <FileText size={24} />
                             </div>
                             <div className="relative flex-1 max-w-sm">
@@ -230,14 +257,14 @@ const DocumentUpload = () => {
                                     onChange={(e) => setAdditionalDocType(e.target.value)}
                                 >
                                     <option value="" disabled>Select document type</option>
-                                    <option value={DocumentType.OTHER}>Other Document</option>
+                                    <option value={'OTHER'}>Other Document</option>
                                 </select>
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-text pointer-events-none" size={16} />
                             </div>
                         </div>
 
                         <button
-                            onClick={() => handleUploadClick(DocumentType.OTHER)}
+                            onClick={() => handleUploadClick('OTHER')}
                             className={`flex items-center gap-2 text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors
                                 ${!additionalDocType
                                     ? 'bg-[#f2e6ff] text-[#a370e0] cursor-not-allowed'

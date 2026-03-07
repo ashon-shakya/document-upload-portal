@@ -5,10 +5,10 @@ import crypto from 'crypto';
 
 // Initialize S3 Client
 const s3Client = new S3Client({
-    region: config.awsRegion,
+    region: config.awsOptions.region,
     credentials: {
-        accessKeyId: config.awsAccessKeyId,
-        secretAccessKey: config.awsSecretAccessKey,
+        accessKeyId: config.awsOptions.accessKeyId,
+        secretAccessKey: config.awsOptions.secretAccessKey,
     },
 });
 
@@ -17,10 +17,10 @@ export const getPresignedUploadUrl = async (fileName: string, contentType: strin
     const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
 
     // Generate a unique S3 key specifically organized by user
-    const s3Key = `${config.awsS3BucketFolder}/uploads/users/${userId}/${crypto.randomUUID()}-${sanitizedFileName}`;
+    const s3Key = `${config.awsOptions.s3BucketFolder}/uploads/users/${userId}/${crypto.randomUUID()}-${sanitizedFileName}`;
 
     const command = new PutObjectCommand({
-        Bucket: config.awsS3BucketName,
+        Bucket: config.awsOptions.s3BucketName,
         Key: s3Key,
         ContentType: contentType,
         // Optional: ACL configuration depending on bucket setup. usually omit or 'public-read' / 'private'
@@ -31,7 +31,7 @@ export const getPresignedUploadUrl = async (fileName: string, contentType: strin
     const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 900 });
 
     // The eventual public URL of the uploaded object (assuming public access or access via CloudFront)
-    const publicUrl = `https://${config.awsS3BucketName}.s3.${config.awsRegion}.amazonaws.com/${s3Key}`;
+    const publicUrl = `https://${config.awsOptions.s3BucketName}.s3.${config.awsOptions.region}.amazonaws.com/${s3Key}`;
 
     return { uploadUrl, s3Key, publicUrl };
 };

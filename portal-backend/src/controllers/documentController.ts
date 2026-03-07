@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { getPresignedUploadUrl } from '../helpers/s3Helper';
 import { DocumentUploadModel } from '../models/documentModel';
-import { DocumentType } from '../interfaces/DocumentType';
+import { DocumentStatus, IDocumentType, MimeType } from '../interfaces/IDocumentType';
 import { sendSuccess, sendError } from '../helpers/responseHelper';
+import { IClassifyImage, IVerifyDocumentPayload, requiredChecks } from '../interfaces/ITruuthApi';
+import { classifyApi, verifyApi } from '../helpers/truuthApiHelpers';
 
 export const generatePresignedUrl = async (req: any, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -44,18 +46,97 @@ export const saveDocumentRecord = async (req: any, res: Response, next: NextFunc
         }
 
         // Ensure the document type is valid based on Enum
-        if (!Object.values(DocumentType).includes(documentType)) {
-            sendError(res, 'Invalid document type. Accepted types are: Australian Passport, Australian Driver Licence, Resume, Other.', 400);
+        if (!Object.values(IDocumentType).includes(documentType)) {
+            sendError(res, 'Invalid document type. Accepted types are: Passport, Driver Licence, Resume, Other.', 400);
             return;
         }
 
-        // Check if a document of this type already exists for the user (except "Other")
-        if (documentType !== DocumentType.OTHER) {
+
+        // upload Status
+        let uploadStatus = DocumentStatus.UPLOADED;
+
+        // Call Classification API of PASSPORT & DRIVERS LICENCE
+        if (documentType === IDocumentType.PASSPORT || documentType === IDocumentType.DRIVERS_LICENCE) {
+            try {
+                const uploadedImages: IClassifyImage[] = files.map((file: any) => {
+                    return {
+                        url: file.documentUrl,
+                        mimeType: file.mimeType
+                    };
+                });
+
+                const classificationResponse = await classifyApi(uploadedImages);
+
+                if (classificationResponse?.error || !classificationResponse) {
+                    console.error('Classification error:', classificationResponse?.error || 'Empty response');
+                    uploadStatus = DocumentStatus.CLASSIFICATION_FAILED;
+                }
+                else {
+                    const apiCountryCode = classificationResponse.country?.code?.toLowerCase() || '';
+                    const apiDocType = classificationResponse.documentType?.code || '';
+
+                    if (apiCountryCode === 'aus' && apiDocType === documentType) {
+                        uploadStatus = DocumentStatus.CLASSIFICATION_PASSED;
+
+                        for (let file of files) {
+
+                            // send each file for verification
+                            const externalRefId = `ext-ref-${crypto.randomUUID()}`
+                            file.externalRefId = externalRefId;
+
+                            const verificationPayload: IVerifyDocumentPayload = {
+                                document: {
+                                    image: {
+                                        url: file.documentUrl,
+                                        mimeType: file.mimeType
+                                    },
+                                    countryCode: "AUS",
+                                    documentType
+                                },
+                                options: {
+                                    requiredChecks
+                                },
+                                externalRefId
+                            }
+
+                            const verificationResponse = await verifyApi(verificationPayload);
+
+                            if (verificationResponse?.error || !verificationResponse) {
+                                console.error('Verification error:', verificationResponse?.error || 'Empty response');
+                                uploadStatus = DocumentStatus.VERIFICATION_FAILED;
+                            }
+                            else {
+                                file.documentVerifyId = verificationResponse.documentVerifyId;
+                                uploadStatus = DocumentStatus.PENDING_VERIFICATION;
+                            }
+                        }
+                    }
+                    else {
+                        uploadStatus = DocumentStatus.CLASSIFICATION_FAILED;
+                    }
+                }
+            } catch (error) {
+                console.error('Classification API exception:', error);
+                uploadStatus = DocumentStatus.CLASSIFICATION_FAILED;
+            }
+        }
+
+        // update status of each file
+        for (let file of files) {
+            file.status = uploadStatus
+        }
+
+        // Check if a document of this type already exists for the user (except "Other") and send them for verificaiton
+        if (documentType !== IDocumentType.OTHER) {
+
+            // send for verificaiton
+            // update status for each files
             const existingDoc = await DocumentUploadModel.findOne({ userId: user._id, documentType });
+
             if (existingDoc) {
                 // We could update it or reject it, let's update for now or just allow it if re-uploading
                 existingDoc.files = files;
-                existingDoc.uploadStatus = 'Completed';
+                existingDoc.uploadStatus = uploadStatus;
                 await existingDoc.save();
 
                 sendSuccess(res, 'Document updated successfully', existingDoc);
@@ -68,7 +149,7 @@ export const saveDocumentRecord = async (req: any, res: Response, next: NextFunc
             userId: user._id,
             documentType,
             files,
-            uploadStatus: 'Completed' // You could make this 'Pending Verification' if there's a manual review step
+            uploadStatus // You could make this 'Pending Verification' if there's a manual review step
         });
 
         sendSuccess(res, 'Document record saved successfully', newDocument, 201);

@@ -3,9 +3,9 @@ import jwt from 'jsonwebtoken';
 import config from '../config/config';
 import { sendError } from '../helpers/responseHelper';
 import { UserModel } from '../models/userModel';
-import { AuthRequest } from '../interfaces/AuthRequest';
+import { IAuthRequest } from '../interfaces/IAuthRequest';
 
-export const protectRoute = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+export const protectRoute = async (req: IAuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
         const token = req.cookies.token;
 

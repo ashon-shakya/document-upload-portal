@@ -1,8 +1,8 @@
-import { DocumentType } from './DocumentType';
+import { DocumentType, type DocumentTypeKey } from './DocumentType';
 
 export interface UploadModalProps {
     isOpen: boolean;
     onClose: () => void;
-    documentType: DocumentType;
+    documentType: DocumentTypeKey;
     onSuccess: () => void;
 }
