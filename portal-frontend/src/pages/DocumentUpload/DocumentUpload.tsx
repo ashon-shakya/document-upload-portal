@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Check, Clock, FileText, Upload, RefreshCw, Book, IdCard, ChevronDown, X } from 'lucide-react';
 import apiProcessor from '../../api/apiProcessor';
 import UploadModal from '../../components/UploadModal/UploadModal';
-import { DocumentStatus, DocumentType, type DocumentTypeKey } from '../../interfaces/DocumentType';
+import { DocumentStatus, type DocumentTypeKey } from '../../interfaces/DocumentType';
 
 import type { UploadedDocument } from '../../interfaces/UploadedDocument';
 
@@ -28,7 +28,6 @@ const DocumentUpload = () => {
     };
 
     const handleUploadClick = (type: DocumentTypeKey) => {
-        console.log(type)
         setActiveDocumentType(type);
         setIsModalOpen(true);
     };
@@ -68,7 +67,6 @@ const DocumentUpload = () => {
         isAdditional: boolean = false
     ) => {
         const doc = getDocumentByType(title);
-        console.log(doc)
 
         if (isAdditional && !doc) return null;
 

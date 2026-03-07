@@ -1,4 +1,4 @@
-import { DocumentType, type DocumentTypeKey } from './DocumentType';
+import { type DocumentTypeKey } from './DocumentType';
 
 export interface UploadModalProps {
     isOpen: boolean;
