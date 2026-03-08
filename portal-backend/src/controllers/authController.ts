@@ -38,7 +38,8 @@ export const signup = async (req: Request, res: Response, next: NextFunction): P
             username: newUser.username,
             email: newUser.email,
             profileImageUrl: newUser.profileImageUrl,
-            createdAt: newUser.createdAt
+            createdAt: newUser.createdAt,
+            userStatus: newUser.userStatus
         }, 201);
 
     } catch (error: any) {
@@ -115,7 +116,8 @@ export const getUserProfile = async (req: any, res: Response, next: NextFunction
             username: user.username,
             email: user.email,
             profileImageUrl: user.profileImageUrl,
-            createdAt: user.createdAt
+            createdAt: user.createdAt,
+            userStatus: user.userStatus
         });
     } catch (error: any) {
         next(error);

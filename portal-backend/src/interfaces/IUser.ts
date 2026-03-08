@@ -7,4 +7,5 @@ export interface IUser {
     profileImageUrl?: string;
     createdAt?: Date;
     updatedAt?: Date;
+    userStatus?: string;
 }

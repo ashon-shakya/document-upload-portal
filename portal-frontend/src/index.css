@@ -13,6 +13,18 @@
   --color-gray-text: #6b7280;
   --color-dark-text: #1f2937;
   --color-badge-gray-bg: #e9ecef;
+
+  --animate-bg-pan-right: bg-pan-right 2s linear infinite;
+
+  @keyframes bg-pan-right {
+    0% {
+      background-position: 0% 50%;
+    }
+
+    100% {
+      background-position: 200% 50%;
+    }
+  }
 }
 
 body {

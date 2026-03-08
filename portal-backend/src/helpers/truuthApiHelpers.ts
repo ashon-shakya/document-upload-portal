@@ -32,7 +32,7 @@ export const submitFraudCheck = async (payload: IVerifyDocumentPayload) => {
     try {
         return await apiProcessor({
             method: 'POST',
-            url: config.truuthOptions.apiUrls.verify + "/submit",
+            url: config.truuthOptions.apiUrls.submitFraud,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Basic ${token}`,
@@ -51,7 +51,7 @@ export const getFraudCheck = async (documentVerifyId: string) => {
     try {
         return await apiProcessor({
             method: 'GET',
-            url: `${config.truuthOptions.apiUrls.verify}/${documentVerifyId}`,
+            url: `${config.truuthOptions.apiUrls.getFraud}/${documentVerifyId}`,
             headers: {
                 'Authorization': `Basic ${token}`,
                 'Accept': 'application/json'

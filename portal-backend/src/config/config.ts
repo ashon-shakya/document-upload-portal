@@ -24,7 +24,8 @@ const config: IAppConfig = {
         apiSecret: process.env.TRUUTH_API_SECRET || '',
         apiUrls: {
             classify: process.env.TRUUTH_CLASSIFY_URL || '',
-            verify: process.env.TRUUTH_VERIFY_URL?.replace('{tenantAlias}', process.env.TRUUTH_TENNANT_ALIAS || '') || '',
+            submitFraud: process.env.TRUUTH_SUBMIT_FRAUD_CHECK_URL?.replace('{tenantAlias}', process.env.TRUUTH_TENNANT_ALIAS || '') || '',
+            getFraud: process.env.TRUUTH_GET_FRAUD_CHECK_URL?.replace('{tenantAlias}', process.env.TRUUTH_TENNANT_ALIAS || '') || '',
         }
     }
     // Add other environment variables here as needed

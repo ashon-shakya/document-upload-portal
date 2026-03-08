@@ -1,5 +1,5 @@
 import express from 'express';
-import { generatePresignedUrl, saveDocumentRecord, getUserDocuments, updateUserDocumentStatus } from '../controllers/documentController';
+import { generatePresignedUrl, saveDocumentRecord, getUserDocuments, updateUserDocumentStatus, submitDocuments, restartDocuments } from '../controllers/documentController';
 import { protectRoute } from '../middlewares/authMiddleware';
 import { validateRequest } from '../middlewares/validateRequest';
 import { presignedUrlSchema, saveDocumentSchema, updateDocumentStatusSchema } from '../validators/documentValidators';
@@ -17,5 +17,11 @@ router.post('/', protectRoute, validateRequest(saveDocumentSchema), saveDocument
 
 // Route to check for document fraud check status
 router.post('/update-status', protectRoute, validateRequest(updateDocumentStatusSchema), updateUserDocumentStatus);
+
+// Route to handle final document submission for a user
+router.post('/submit', protectRoute, submitDocuments);
+
+// Route to handle resetting a user's flow and documentation
+router.post('/restart', protectRoute, restartDocuments);
 
 export default router;

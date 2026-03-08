@@ -12,7 +12,8 @@ export interface ITruuthOptions {
     apiSecret: string;
     apiUrls: {
         classify: string;
-        verify: string;
+        submitFraud: string;
+        getFraud: string;
     }
 }
 

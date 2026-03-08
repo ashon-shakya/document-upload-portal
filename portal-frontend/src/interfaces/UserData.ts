@@ -5,4 +5,5 @@ export interface UserData {
     email: string;
     profileImageUrl?: string;
     createdAt: string;
+    userStatus?: string;
 }

@@ -3,18 +3,22 @@ import { Check, Clock, FileText, Upload, RefreshCw, Book, IdCard, ChevronDown, X
 import apiProcessor from '../../api/apiProcessor';
 import UploadModal from '../../components/UploadModal/UploadModal';
 import ResultModal from '../../components/ResultModal/ResultModal';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { setUserData } from '../../store/userSlice';
 import { DocumentStatus, type DocumentTypeKey } from '../../interfaces/DocumentType';
 
 import type { UploadedDocument } from '../../interfaces/UploadedDocument';
 
 const DocumentUpload = () => {
     const [documents, setDocuments] = useState<UploadedDocument[]>([]);
-    const [files, setFiles] = useState([]);
     const [additionalDocType, setAdditionalDocType] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeDocumentType, setActiveDocumentType] = useState<DocumentTypeKey | null>(null);
     const [isResultModalOpen, setIsResultModalOpen] = useState(false);
     const [selectedResult, setSelectedResult] = useState<any>(null);
+
+    const user = useAppSelector(state => state.user.userData);
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         fetchDocuments();
@@ -95,6 +99,34 @@ const DocumentUpload = () => {
     const requiredCount = 3;
     const progressPercent = (uploadedCount / requiredCount) * 100;
 
+    const isPassportComplete = documents.some(d => d.documentType === 'PASSPORT' && d.files.some(f => f.status === 'CHECK_COMPLETE'));
+    const isDriversLicenceComplete = documents.some(d => d.documentType === 'DRIVERS_LICENCE' && d.files.some(f => f.status === 'CHECK_COMPLETE'));
+    const isResumeUploaded = documents.some(d => d.documentType === 'RESUME' && d.files.some(f => f.status === 'UPLOADED' || f.status === 'CHECK_COMPLETE'));
+    const canSubmit = isPassportComplete && isDriversLicenceComplete && isResumeUploaded;
+
+    const handleSubmit = async () => {
+        try {
+            await apiProcessor.post('/documents/submit');
+            if (user) {
+                dispatch(setUserData({ ...user, userStatus: 'DOCUMENT_SUBMITTED' }));
+            }
+        } catch (error) {
+            console.error('Failed to submit documents', error);
+        }
+    };
+
+    const handleRestart = async () => {
+        try {
+            await apiProcessor.post('/documents/restart');
+            if (user) {
+                dispatch(setUserData({ ...user, userStatus: 'NEW' }));
+            }
+            setDocuments([]);
+        } catch (error) {
+            console.error('Failed to restart documents', error);
+        }
+    };
+
     const renderDocumentCard = (
         title: DocumentTypeKey,
         icon: React.ReactNode,
@@ -109,7 +141,7 @@ const DocumentUpload = () => {
             return (
                 <div key={title} className="flex flex-col items-start gap-2 sm:flex-row sm:items-center bg-white rounded-xl border-2 border-brand p-5 justify-between shadow-sm ">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-brand-light rounded-lg flex items-center justify-center text-brand flex-shrink-0">
+                        <div className="w-12 h-12 bg-brand-light rounded-lg flex items-center justify-center text-brand shrink-0">
                             {icon}
                         </div>
                         <div>
@@ -179,7 +211,7 @@ const DocumentUpload = () => {
         return (
             <div key={title} className="bg-white rounded-xl border border-gray-border p-5 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-badge-gray-bg rounded-lg flex items-center justify-center text-gray-text flex-shrink-0">
+                    <div className="w-12 h-12 bg-badge-gray-bg rounded-lg flex items-center justify-center text-gray-text shrink-0">
                         {icon}
                     </div>
                     <div>
@@ -228,7 +260,17 @@ const DocumentUpload = () => {
                 </div>
 
                 <div className="w-full bg-gray-border h-2 rounded-full mb-3 overflow-hidden">
-                    <div className="bg-brand h-full rounded-full transition-all duration-500" style={{ width: `${progressPercent}%` }}></div>
+                    {documents.some(doc => doc.files.some(f => f.status === 'CHECK_PENDING')) ? (
+                        <div
+                            className="h-full rounded-full transition-all duration-500 bg-size[200%, 200%] animate-[bg-pan-right_2s_linear_infinite]"
+                            style={{
+                                width: `${progressPercent}%`,
+                                backgroundImage: `linear-gradient(90deg, #7D3C98 0%, #a370e0 50%, #7D3C98 100%)`
+                            }}
+                        ></div>
+                    ) : (
+                        <div className="bg-brand h-full rounded-full transition-all duration-500" style={{ width: `${progressPercent}%` }}></div>
+                    )}
                 </div>
                 <p className="text-sm text-gray-text">{uploadedCount} of {requiredCount} required documents uploaded</p>
             </div>
@@ -259,7 +301,7 @@ const DocumentUpload = () => {
                     {documents.filter(d => d.documentType === 'OTHER').map((doc, index) => (
                         <div key={doc._id} className="bg-white rounded-xl border-2 border-brand p-5 flex items-center justify-between shadow-sm">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-brand-light rounded-lg flex items-center justify-center text-brand flex-shrink-0">
+                                <div className="w-12 h-12 bg-brand-light rounded-lg flex items-center justify-center text-brand shrink-0">
                                     <FileText size={24} />
                                 </div>
                                 <div>
@@ -335,13 +377,35 @@ const DocumentUpload = () => {
             {/* Footer Buttons */}
             <div className="flex justify-end">
                 <button
+                    onClick={handleSubmit}
                     className={`flex items-center gap-2 text-white font-semibold px-6 py-3 rounded-lg transition-colors shadow-sm
-                        ${uploadedCount === requiredCount ? 'bg-brand hover:bg-brand-dark' : 'bg-gray-400 cursor-not-allowed'}`}
-                    disabled={uploadedCount < requiredCount}
+                        ${canSubmit ? 'bg-brand hover:bg-brand-dark' : 'bg-gray-400 cursor-not-allowed'}`}
+                    disabled={!canSubmit}
                 >
-                    <Check size={18} /> Confirm
+                    <Check size={18} /> Submit
                 </button>
             </div>
+
+            {/* Submission Success Modal */}
+            {user?.userStatus === 'DOCUMENT_SUBMITTED' && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 text-center flex flex-col items-center">
+                        <div className="w-20 h-20 bg-green-50 border-4 border-green-100 text-green-500 rounded-full flex items-center justify-center mb-6 shadow-sm">
+                            <Check size={40} strokeWidth={3} />
+                        </div>
+                        <h2 className="text-2xl font-bold text-dark-text mb-3">Thank you for your submission!</h2>
+                        <p className="text-gray-text mb-8 text-sm leading-relaxed">
+                            We have securely received your documents. Our team is reviewing them and will be in touch with you shortly regarding next steps.
+                        </p>
+                        <button
+                            onClick={handleRestart}
+                            className="w-full flex justify-center items-center gap-2 px-6 py-3.5 text-sm font-semibold text-brand bg-brand-light rounded-xl hover:bg-brand/20 transition-colors"
+                        >
+                            <RefreshCw size={18} /> Restart Process
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Verification Result Modal */}
             <ResultModal

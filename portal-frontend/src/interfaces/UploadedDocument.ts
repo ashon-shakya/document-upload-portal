@@ -8,6 +8,7 @@ export interface UploadedDocument {
         status: string;
         documentVerifyId: string;
         externalRefId: string;
+        verificationResult?: any;
     }[];
     uploadStatus: string;
     createdAt: string;

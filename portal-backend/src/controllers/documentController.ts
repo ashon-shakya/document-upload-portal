@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { getPresignedUploadUrl } from '../helpers/s3Helper';
 import { DocumentUploadModel } from '../models/documentModel';
+import { UserModel } from '../models/userModel';
 import { DocumentStatus, IDocumentType, MimeType } from '../interfaces/IDocumentType';
 import { sendSuccess, sendError } from '../helpers/responseHelper';
 import { IClassifyImage, IVerifyDocumentPayload, requiredChecks } from '../interfaces/ITruuthApi';
@@ -135,6 +136,34 @@ export const getUserDocuments = async (req: any, res: Response, next: NextFuncti
         const documents = await DocumentUploadModel.find({ userId: user._id });
 
         sendSuccess(res, 'Documents retrieved successfully', documents);
+    } catch (error: any) {
+        next(error);
+    }
+};
+
+export const submitDocuments = async (req: any, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const user = req.user;
+
+        await UserModel.findByIdAndUpdate(user._id, { userStatus: 'DOCUMENT_SUBMITTED' });
+
+        sendSuccess(res, 'Documents submitted successfully', null);
+    } catch (error: any) {
+        next(error);
+    }
+};
+
+export const restartDocuments = async (req: any, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const user = req.user;
+
+        // Reset user status
+        await UserModel.findByIdAndUpdate(user._id, { userStatus: 'NEW' });
+
+        // Delete all uploaded documents for this user
+        await DocumentUploadModel.deleteMany({ userId: user._id });
+
+        sendSuccess(res, 'Upload progress restarted successfully', null);
     } catch (error: any) {
         next(error);
     }
