@@ -540,6 +540,82 @@
           }
         }
       }
+    },
+    "/documents/submit": {
+      "post": {
+        "summary": "Submit Uploaded Documents",
+        "description": "Finalizes the document upload process and upgrades the user status to DOCUMENT_SUBMITTED.",
+        "tags": [
+          "Documents"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Documents submitted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Documents submitted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/documents/restart": {
+      "post": {
+        "summary": "Restart Process",
+        "description": "Hard-deletes all documents associated with the user and resets their profile status back to NEW.",
+        "tags": [
+          "Documents"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Upload progress restarted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Upload progress restarted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
     }
   }
 }

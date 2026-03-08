@@ -4,6 +4,7 @@ import apiProcessor from '../../api/apiProcessor';
 import axios from 'axios';
 
 import type { UploadModalProps } from '../../interfaces/UploadModalProps';
+import { DocumentType } from '../../interfaces/DocumentType';
 
 const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, documentType, onSuccess }) => {
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -130,7 +131,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, documentType
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-border">
                     <div>
-                        <h2 className="text-xl font-bold text-dark-text">Upload {documentType}</h2>
+                        <h2 className="text-xl font-bold text-dark-text">Upload {DocumentType[documentType]}</h2>
                         <p className="text-sm text-gray-text mt-1">
                             {isImageOnly ? 'Please upload image files (JPG, PNG). You can upload multiple images.' :
                                 isResume ? 'Please upload a PDF or DOCX file.' :

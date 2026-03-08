@@ -5,7 +5,7 @@ import UploadModal from '../../components/UploadModal/UploadModal';
 import ResultModal from '../../components/ResultModal/ResultModal';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { setUserData } from '../../store/userSlice';
-import { DocumentStatus, type DocumentTypeKey } from '../../interfaces/DocumentType';
+import { DocumentType, DocumentStatus, type DocumentTypeKey } from '../../interfaces/DocumentType';
 
 import type { UploadedDocument } from '../../interfaces/UploadedDocument';
 
@@ -145,7 +145,7 @@ const DocumentUpload = () => {
                             {icon}
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-dark-text leading-tight mb-2">{title}</h3>
+                            <h3 className="text-lg font-bold text-dark-text leading-tight mb-2">{DocumentType[title]}</h3>
                             <div className="flex flex-col gap-2">
                                 {doc.files.map((f, i) => (
                                     <div key={i} className="flex items-center gap-3">
