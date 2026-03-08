@@ -21,3 +21,15 @@ export const saveDocumentSchema = z.object({
         })
     ).min(1, 'At least one file is required'),
 });
+
+// Define the validation schema for saving document records
+export const updateDocumentStatusSchema = z.object({
+    documentType: z.nativeEnum(IDocumentType, {
+        message: 'Invalid document type. Accepted types are: PASSPORT, DRIVERS_LICENCE, RESUME, OTHER.'
+    }),
+    files: z.array(
+        z.object({
+            externalRefId: z.string().min(1, 'External Ref ID is required')
+        })
+    ).min(1, 'At least one file is required'),
+});

@@ -109,11 +109,6 @@ export const getUserProfile = async (req: any, res: Response, next: NextFunction
     try {
         const user = req.user;
 
-        if (!user) {
-            sendError(res, 'User not found', 404);
-            return;
-        }
-
         sendSuccess(res, 'User details retrieved successfully', {
             id: user._id,
             fullName: user.fullName,

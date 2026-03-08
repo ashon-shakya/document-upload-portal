@@ -16,9 +16,9 @@ const DocumentUploadSchema: Schema = new Schema({
         mimeType: { type: String, required: true },
         status: { type: String, required: true },
         externalRefId: { type: String },
-        documentVerifyId: { type: String }
+        documentVerifyId: { type: String },
+        verificationResult: { type: Schema.Types.Mixed }
     }],
-    uploadStatus: { type: String, default: 'Processing' }
 }, { timestamps: true });
 
 export const DocumentUploadModel = mongoose.model<IDocumentUpload>('DocumentUpload', DocumentUploadSchema);

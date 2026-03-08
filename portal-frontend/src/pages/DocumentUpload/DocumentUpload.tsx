@@ -2,15 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { Check, Clock, FileText, Upload, RefreshCw, Book, IdCard, ChevronDown, X } from 'lucide-react';
 import apiProcessor from '../../api/apiProcessor';
 import UploadModal from '../../components/UploadModal/UploadModal';
+import ResultModal from '../../components/ResultModal/ResultModal';
 import { DocumentStatus, type DocumentTypeKey } from '../../interfaces/DocumentType';
 
 import type { UploadedDocument } from '../../interfaces/UploadedDocument';
 
 const DocumentUpload = () => {
     const [documents, setDocuments] = useState<UploadedDocument[]>([]);
+    const [files, setFiles] = useState([]);
     const [additionalDocType, setAdditionalDocType] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeDocumentType, setActiveDocumentType] = useState<DocumentTypeKey | null>(null);
+    const [isResultModalOpen, setIsResultModalOpen] = useState(false);
+    const [selectedResult, setSelectedResult] = useState<any>(null);
 
     useEffect(() => {
         fetchDocuments();
@@ -26,6 +30,37 @@ const DocumentUpload = () => {
             console.error('Failed to fetch documents', error);
         }
     };
+
+    useEffect(() => {
+        const intervalId = setInterval(async () => {
+            // Find all files that are pending a check
+            const pendingFiles = documents.flatMap(doc => doc.files).filter(f => f.status === 'CHECK_PENDING');
+
+            if (pendingFiles.length > 0) {
+                try {
+                    const payload = {
+                        documentType: 'OTHER', // The backend schema requires this field, though only files are used for polling logic
+                        files: pendingFiles.map(f => ({ externalRefId: f.externalRefId }))
+                    };
+
+                    const response = await apiProcessor.post('/documents/update-status', payload);
+
+                    // If the backend returned updated documents, we refresh our state
+                    if (response.data && response.data.data) {
+                        setDocuments(docs => {
+                            // Merge updated documents into existing state
+                            const updatedDocsMap = new Map((response.data.data as UploadedDocument[]).map(d => [d._id, d]));
+                            return docs.map(d => updatedDocsMap.has(d._id) ? updatedDocsMap.get(d._id)! : d);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Failed to poll document status', error);
+                }
+            }
+        }, 5000);
+
+        return () => clearInterval(intervalId);
+    }, [documents]);
 
     const handleUploadClick = (type: DocumentTypeKey) => {
         setActiveDocumentType(type);
@@ -84,19 +119,19 @@ const DocumentUpload = () => {
                                     <div key={i} className="flex items-center gap-3">
 
                                         {
-                                            f.status === 'VERIFICATION_PASSED' ?
+                                            f.status === 'CHECK_COMPLETE' ?
                                                 <>
                                                     <span className="inline-flex items-center gap-1 bg-green-50 text-green-500 text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
                                                         <Check size={12} strokeWidth={3} /> {DocumentStatus[f.status]}
                                                     </span>
                                                 </> :
-                                                f.status === 'CLASSIFICATION_FAILED' || f.status === 'VERIFICATION_FAILED' ?
+                                                f.status === 'CLASSIFICATION_FAILED' || f.status === 'CHECK_FAILED' ?
                                                     <>
                                                         <span className="inline-flex items-center gap-1 bg-red-50 text-red-500 text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
                                                             <X size={12} strokeWidth={3} /> {DocumentStatus[f.status]}
                                                         </span>
                                                     </> :
-                                                    f.status === 'PENDING_VERIFICATION' ?
+                                                    f.status === 'CHECK_PENDING' ?
                                                         <>
                                                             <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-500 text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
                                                                 <Clock size={12} strokeWidth={3} /> {DocumentStatus[f.status]}
@@ -112,6 +147,17 @@ const DocumentUpload = () => {
                                         <span className="text-sm font-medium text-gray-text truncate max-w-[200px]" title={f.documentName}>
                                             {f.documentName}
                                         </span>
+                                        {f.status === 'CHECK_COMPLETE' && f.verificationResult && (
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedResult(f.verificationResult);
+                                                    setIsResultModalOpen(true);
+                                                }}
+                                                className="text-xs text-brand hover:underline font-semibold ml-2 inline-flex items-center gap-1"
+                                            >
+                                                View Result
+                                            </button>
+                                        )}
                                     </div>
                                 ))}
                             </div>
@@ -229,6 +275,17 @@ const DocumentUpload = () => {
                                                 <span className="text-sm font-medium text-gray-text truncate max-w-[200px]" title={f.documentName}>
                                                     {f.documentName}
                                                 </span>
+                                                {f.status === 'CHECK_COMPLETE' && f.verificationResult && (
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedResult(f.verificationResult);
+                                                            setIsResultModalOpen(true);
+                                                        }}
+                                                        className="text-xs text-brand hover:underline font-semibold ml-2 inline-flex items-center gap-1"
+                                                    >
+                                                        View Result
+                                                    </button>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -285,6 +342,16 @@ const DocumentUpload = () => {
                     <Check size={18} /> Confirm
                 </button>
             </div>
+
+            {/* Verification Result Modal */}
+            <ResultModal
+                isOpen={isResultModalOpen}
+                onClose={() => {
+                    setIsResultModalOpen(false);
+                    setSelectedResult(null);
+                }}
+                result={selectedResult}
+            />
         </div>
     );
 };

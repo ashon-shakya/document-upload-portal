@@ -1,8 +1,8 @@
 import express from 'express';
-import { generatePresignedUrl, saveDocumentRecord, getUserDocuments } from '../controllers/documentController';
+import { generatePresignedUrl, saveDocumentRecord, getUserDocuments, updateUserDocumentStatus } from '../controllers/documentController';
 import { protectRoute } from '../middlewares/authMiddleware';
 import { validateRequest } from '../middlewares/validateRequest';
-import { presignedUrlSchema, saveDocumentSchema } from '../validators/documentValidators';
+import { presignedUrlSchema, saveDocumentSchema, updateDocumentStatusSchema } from '../validators/documentValidators';
 
 const router = express.Router();
 
@@ -14,5 +14,8 @@ router.post('/presigned-url', protectRoute, validateRequest(presignedUrlSchema),
 
 // Route to save the document details in MongoDB once successful client-side upload finishes
 router.post('/', protectRoute, validateRequest(saveDocumentSchema), saveDocumentRecord);
+
+// Route to check for document fraud check status
+router.post('/update-status', protectRoute, validateRequest(updateDocumentStatusSchema), updateUserDocumentStatus);
 
 export default router;

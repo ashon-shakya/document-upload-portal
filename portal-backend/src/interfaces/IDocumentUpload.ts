@@ -7,13 +7,15 @@ export interface IDocumentUploadFile {
     s3Key: string;
     status: string;
     mimeType: string;
+    externalRefId?: string;
+    documentVerifyId?: string;
+    verificationResult?: any;
 }
 
 export interface IDocumentUpload extends Document {
     userId: mongoose.Types.ObjectId;
     documentType: IDocumentType;
     files: IDocumentUploadFile[];
-    uploadStatus: string;
     createdAt: Date;
     updatedAt: Date;
 }

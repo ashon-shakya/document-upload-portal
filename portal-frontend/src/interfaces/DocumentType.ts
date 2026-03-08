@@ -10,9 +10,9 @@ export const DocumentStatus = {
     UPLOADED: 'Uploaded',
     CLASSIFICATION_PASSED: 'Classified',
     CLASSIFICATION_FAILED: 'Classification Failed',
-    PENDING_VERIFICATION: 'Pending Verification',
-    VERIFICATION_PASSED: 'Verified',
-    VERIFICATION_FAILED: 'Verification Failed'
+    CHECK_PENDING: 'Fraud Check Pending',
+    CHECK_COMPLETE: 'Check Complete',
+    CHECK_FAILED: 'Fraud Check Failed'
 } as const;
 
 export type DocumentTypeKey = keyof typeof DocumentType;
