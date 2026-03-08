@@ -11,6 +11,12 @@ To explore the Document Upload dashboard, you can log in using the following tes
 - **Username:** `john`
 - **Password:** `test1234`
 
+Backend URL:
+**[https://document-upload-portal-zeta.vercel.app/](https://document-upload-portal-zeta.vercel.app/)**
+
+SWAGGER Documentation
+**[https://document-upload-portal-zeta.vercel.app/api-docs](https://document-upload-portal-zeta.vercel.app/api-docs)**
+
 ## Tech Stack
 
 **Frontend:**
