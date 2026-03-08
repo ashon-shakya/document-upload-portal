@@ -10,8 +10,8 @@ export const DocumentStatus = {
     UPLOADED: 'Uploaded',
     CLASSIFICATION_PASSED: 'Classified',
     CLASSIFICATION_FAILED: 'Classification Failed',
-    CHECK_PENDING: 'Fraud Check Pending',
-    CHECK_COMPLETE: 'Check Complete',
+    CHECK_PENDING: 'Fraud Check Submitted',
+    CHECK_COMPLETE: 'Fraud Check Complete',
     CHECK_FAILED: 'Fraud Check Failed'
 } as const;
 
