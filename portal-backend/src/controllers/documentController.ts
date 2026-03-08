@@ -199,6 +199,8 @@ export const updateUserDocumentStatus = async (req: any, res: Response, next: Ne
                                     file.status = DocumentStatus.CHECK_COMPLETE;
                                 } else if (fraudCheckRes.status === 'PROCESSING') {
                                     file.status = DocumentStatus.CHECK_PENDING;
+                                } else if (fraudCheckRes.status === 'FAILED') {
+                                    file.status = DocumentStatus.CHECK_FAILED;
                                 } else if (fraudCheckRes.error) {
                                     file.status = DocumentStatus.CHECK_FAILED;
                                 }
