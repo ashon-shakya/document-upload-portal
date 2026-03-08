@@ -215,7 +215,7 @@ const DocumentUpload = () => {
                         {icon}
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-dark-text leading-tight mb-2">{title}</h3>
+                        <h3 className="text-lg font-bold text-dark-text leading-tight mb-2">{DocumentType[title]}</h3>
                         <div className="flex items-center gap-3 mb-1">
                             <span className="inline-flex items-center gap-1 bg-badge-gray-bg text-gray-text text-xs font-semibold px-2 py-0.5 rounded-full">
                                 <Clock size={12} strokeWidth={3} /> Not uploaded
